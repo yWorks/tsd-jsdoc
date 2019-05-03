@@ -309,7 +309,8 @@ export function createClassMember(doclet: IMemberDoclet): ts.PropertyDeclaration
     ));
 }
 
-function getAccessModifiers(doclet: IMemberDoclet | IClassDoclet) {
+function getAccessModifiers(doclet: IMemberDoclet | IClassDoclet)
+{
     const mods: ts.Modifier[] = [];
 
     if (doclet.access === 'private' || doclet.access === 'package')
@@ -322,7 +323,8 @@ function getAccessModifiers(doclet: IMemberDoclet | IClassDoclet) {
     return mods
 }
 
-export function createConstructor(doclet: IClassDoclet) {
+export function createConstructor(doclet: IClassDoclet)
+{
     const params = createFunctionParams(doclet);
     return handleComment(doclet, ts.createConstructor(
         undefined,  // decorators
