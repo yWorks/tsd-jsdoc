@@ -13,6 +13,7 @@ import { PropTree } from "./PropTree";
 const declareModifier = ts.createModifier(ts.SyntaxKind.DeclareKeyword);
 const constModifier = ts.createModifier(ts.SyntaxKind.ConstKeyword);
 const readonlyModifier = ts.createModifier(ts.SyntaxKind.ReadonlyKeyword);
+const abstractModifier = ts.createModifier(ts.SyntaxKind.AbstractKeyword);
 
 function validateClassLikeChildren(children: ts.Node[] | undefined, validate: (n: ts.Node) => boolean, msg: string)
 {
@@ -93,13 +94,17 @@ export function createClass(doclet: IClassDoclet, children?: ts.Node[]): ts.Clas
 {
     validateClassChildren(children);
 
-    const mods = doclet.memberof ? undefined : [declareModifier];
+    const mods: ts.Modifier[] = [];
     const members = children as ts.ClassElement[] || [];
     const typeParams = resolveTypeParameters(doclet);
     const heritageClauses = resolveHeritageClauses(doclet, false);
 
     if (doclet.name.startsWith('exports.'))
         doclet.name = doclet.name.replace('exports.', '');
+    if (!doclet.memberof)
+        mods.push(declareModifier);
+    if (doclet.virtual)
+        mods.push(abstractModifier);
 
     if (doclet.params)
     {
@@ -158,13 +163,17 @@ export function createInterface(doclet: IClassDoclet, children?: ts.Node[]): ts.
 {
     validateInterfaceChildren(children);
 
-    const mods = doclet.memberof ? undefined : [declareModifier];
+    const mods: ts.Modifier[] = [];
     const members = children as ts.TypeElement[];
     const typeParams = resolveTypeParameters(doclet);
     const heritageClauses = resolveHeritageClauses(doclet, true);
 
     if (doclet.name.startsWith('exports.'))
         doclet.name = doclet.name.replace('exports.', '');
+    if (!doclet.memberof)
+        mods.push(declareModifier);
+    if (doclet.virtual)
+        mods.push(abstractModifier);
 
     return handleComment(doclet, ts.createInterfaceDeclaration(
         undefined,      // decorators
@@ -221,6 +230,9 @@ export function createClassMethod(doclet: IFunctionDoclet): ts.MethodDeclaration
     if (doclet.name.startsWith('exports.'))
         doclet.name = doclet.name.replace('exports.', '');
 
+    if (doclet.virtual)
+        mods.push(abstractModifier);
+
     return handleComment(doclet, ts.createMethod(
         undefined,      // decorators
         mods,           // modifiers
@@ -249,6 +261,9 @@ export function createInterfaceMethod(doclet: IFunctionDoclet): ts.MethodSignatu
 
     if (doclet.name.startsWith('exports.'))
         doclet.name = doclet.name.replace('exports.', '');
+
+    if (doclet.virtual)
+        mods.push(abstractModifier);
 
     return handleComment(doclet, ts.createMethodSignature(
         typeParams,     // typeParameters
