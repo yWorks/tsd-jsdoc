@@ -9,6 +9,7 @@ import {
     resolveTypeParameters
 } from './type_resolve_helpers';
 import { PropTree } from "./PropTree";
+import {isConstructor} from "./Emitter";
 
 const declareModifier = ts.createModifier(ts.SyntaxKind.DeclareKeyword);
 const constModifier = ts.createModifier(ts.SyntaxKind.ConstKeyword);
@@ -330,7 +331,10 @@ function getAccessModifiers(doclet: IMemberDoclet | IClassDoclet)
     const mods: ts.Modifier[] = [];
 
     if (doclet.access === 'private' || doclet.access === 'package')
-        mods.push(ts.createModifier(ts.SyntaxKind.PrivateKeyword));
+        if (isConstructor(doclet) && doclet.access === 'package')
+            mods.push(ts.createModifier(ts.SyntaxKind.ProtectedKeyword));
+        else
+            mods.push(ts.createModifier(ts.SyntaxKind.PrivateKeyword));
     else if (doclet.access === 'protected')
         mods.push(ts.createModifier(ts.SyntaxKind.ProtectedKeyword));
     else if (doclet.access === 'public')

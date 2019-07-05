@@ -49,7 +49,7 @@ function shouldMoveOutOfClass(doclet: TDoclet)
         || doclet.kind === 'typedef');
 }
 
-function isConstructor(doclet: TDoclet)
+export function isConstructor(doclet: TDoclet)
 {
     return doclet.kind === "class" && doclet.name === doclet.memberof
 }
@@ -305,6 +305,10 @@ export class Emitter
 
     private _ignoreDoclet(doclet: TAnyDoclet): boolean
     {
+        if (isConstructor(doclet as TDoclet)) {
+            return false
+        }
+
         if (doclet.kind === 'package'
             || doclet.ignore
             || (!this.options.private && doclet.access === 'private')) {
