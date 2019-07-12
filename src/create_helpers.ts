@@ -331,10 +331,10 @@ function getAccessModifiers(doclet: IMemberDoclet | IClassDoclet)
     const mods: ts.Modifier[] = [];
 
     if (doclet.access === 'private' || doclet.access === 'package')
-        if (isConstructor(doclet) && doclet.access === 'package')
-            mods.push(ts.createModifier(ts.SyntaxKind.ProtectedKeyword));
-        else
+    {
+        if (isConstructor(doclet))
             mods.push(ts.createModifier(ts.SyntaxKind.PrivateKeyword));
+    }
     else if (doclet.access === 'protected')
         mods.push(ts.createModifier(ts.SyntaxKind.ProtectedKeyword));
     else if (doclet.access === 'public')
