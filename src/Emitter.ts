@@ -159,6 +159,7 @@ export class Emitter
                             longname: interfaceLongname,
                             augments: extras,
                             memberof: doclet.memberof,
+                            tags: doclet.tags
                         },
                         children: [],
                     };
