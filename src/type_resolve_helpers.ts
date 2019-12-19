@@ -655,7 +655,23 @@ export function createFunctionParams(doclet: IFunctionDoclet | ITypedefDoclet | 
         const node = tree.roots[i];
         const opt = resolveOptional(node.prop);
         const dots = resolveVariable(node.prop);
-        let type = node.children.length ? createTypeLiteral(node.children) : resolveType(node.prop.type);
+
+        let type: ts.TypeNode
+        const typeNode = resolveType(node.prop.type)
+        if (typeNode.kind === ts.SyntaxKind.UnionType && node.children.length > 0) {
+            let union = typeNode as ts.UnionTypeNode
+            const objectTypeIndex = union.types.findIndex(node => node.kind === ts.SyntaxKind.AnyKeyword || node.kind === ts.SyntaxKind.ObjectKeyword)
+            if (objectTypeIndex >= 0) {
+                const unionTypes : ts.TypeNode[] = Array.from(union.types)
+                unionTypes[objectTypeIndex] = createTypeLiteral(node.children)
+                union = ts.createUnionTypeNode(unionTypes)
+                type = union
+            } else {
+                type = createTypeLiteral(node.children)
+            }
+        } else {
+            type = node.children.length ? createTypeLiteral(node.children) : typeNode
+        }
 
         if (dots)
         {
